@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { loginMenteeByEmail } from "@/services/auth";
+import Modal from "@/components/Modal";
 
 interface MenteeLoginCardProps {
   role: "mentor" | "mentee";
@@ -25,7 +26,7 @@ function EyeIcon({ visible }: { visible: boolean }) {
 }
 
 const inputClass =
-  "w-full rounded-lg border border-purple-300 bg-white px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:border-purple-700 dark:bg-gray-800 dark:text-gray-100";
+  "w-full rounded-lg border border-purple-200 bg-white px-4 py-2 text-gray-900 transition focus:outline-none focus:ring-2 focus:ring-purple-500 dark:border-purple-800 dark:bg-gray-800 dark:text-gray-100";
 
 export default function MenteeLoginCard({ role, onClose, onSignUp }: MenteeLoginCardProps) {
   const [email, setEmail] = useState("");
@@ -35,7 +36,8 @@ export default function MenteeLoginCard({ role, onClose, onSignUp }: MenteeLogin
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = async () => {
+  const handleLogin = async (event?: FormEvent<HTMLFormElement>) => {
+    event?.preventDefault();
     setError("");
     if (!email.trim() || !password) {
       setError("Please fill in all fields.");
@@ -69,10 +71,10 @@ export default function MenteeLoginCard({ role, onClose, onSignUp }: MenteeLogin
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
-      <div
-        className="mx-4 flex w-full max-w-sm flex-col gap-4 rounded-2xl border border-purple-300 bg-white p-8 shadow-xl dark:border-purple-700 dark:bg-gray-900"
-        onClick={(event) => event.stopPropagation()}
+    <Modal onClose={onClose} className="mx-4 w-full max-w-sm">
+      <form
+        onSubmit={handleLogin}
+        className="flex w-full flex-col gap-4 rounded-lg border border-purple-200 bg-white p-8 shadow-xl dark:border-purple-800 dark:bg-gray-900"
       >
         <h2 className="text-center text-xl font-semibold text-purple-700 dark:text-purple-400">
           {role === "mentor" ? "Mentor Login" : "Mentee Login"}
@@ -84,6 +86,7 @@ export default function MenteeLoginCard({ role, onClose, onSignUp }: MenteeLogin
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           className={inputClass}
+          autoComplete="email"
         />
 
         <div className="relative">
@@ -93,6 +96,7 @@ export default function MenteeLoginCard({ role, onClose, onSignUp }: MenteeLogin
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             className={`${inputClass} pr-10`}
+            autoComplete="current-password"
           />
           <button
             type="button"
@@ -104,21 +108,21 @@ export default function MenteeLoginCard({ role, onClose, onSignUp }: MenteeLogin
           </button>
         </div>
 
-        <button className="self-end text-right text-sm text-purple-600 hover:underline dark:text-purple-400">
+        <button type="button" className="self-end text-right text-sm text-purple-600 hover:underline dark:text-purple-400">
           Forgot Password?
         </button>
 
         {error ? <p className="text-center text-sm text-red-500">{error}</p> : null}
 
         <button
-          onClick={handleLogin}
+          type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-purple-600 py-2 font-semibold text-white hover:bg-purple-700 disabled:opacity-50"
+          className="w-full rounded-lg bg-purple-600 py-2 font-semibold text-white transition hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-gray-900"
         >
           {loading ? "Logging in..." : "Log In"}
         </button>
 
-        <button className="flex w-full items-center justify-center gap-2 rounded-lg border border-purple-300 py-2 text-gray-700 hover:bg-purple-50 dark:border-purple-700 dark:text-gray-200 dark:hover:bg-gray-800">
+        <button type="button" className="flex w-full items-center justify-center gap-2 rounded-lg border border-purple-200 py-2 text-gray-700 transition hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:border-purple-800 dark:text-gray-200 dark:hover:bg-gray-800 dark:focus:ring-offset-gray-900">
           <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -127,19 +131,20 @@ export default function MenteeLoginCard({ role, onClose, onSignUp }: MenteeLogin
           </svg>
           Login with Google
         </button>
-      </div>
+      </form>
 
       {role === "mentee" ? (
         <button
+          type="button"
           onClick={(event) => {
             event.stopPropagation();
             onSignUp();
           }}
-          className="mt-4 text-sm text-purple-600 hover:underline dark:text-purple-400"
+          className="mt-4 block w-full text-center text-sm text-purple-100 hover:underline"
         >
           New user? Sign Up
         </button>
       ) : null}
-    </div>
+    </Modal>
   );
 }

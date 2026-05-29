@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { registerMentee } from "@/services/auth";
+import Modal from "@/components/Modal";
 
 interface MenteeSignUpCardProps {
   role: "mentor" | "mentee";
@@ -24,7 +25,7 @@ function EyeIcon({ visible }: { visible: boolean }) {
 }
 
 const inputClass =
-  "w-full rounded-lg border border-purple-300 bg-white px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:border-purple-700 dark:bg-gray-800 dark:text-gray-100";
+  "w-full rounded-lg border border-purple-200 bg-white px-4 py-2 text-gray-900 transition focus:outline-none focus:ring-2 focus:ring-purple-500 dark:border-purple-800 dark:bg-gray-800 dark:text-gray-100";
 
 export default function MenteeSignUpCard({ role, onClose, onBackToLogin }: MenteeSignUpCardProps) {
   const [firstName, setFirstName] = useState("");
@@ -39,7 +40,8 @@ export default function MenteeSignUpCard({ role, onClose, onBackToLogin }: Mente
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSignUp = async () => {
+  const handleSignUp = async (event?: FormEvent<HTMLFormElement>) => {
+    event?.preventDefault();
     setError("");
     if (role !== "mentee") {
       setError("Mentor accounts are provisioned separately.");
@@ -77,27 +79,29 @@ export default function MenteeSignUpCard({ role, onClose, onBackToLogin }: Mente
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
-      <div
-        className="mx-4 flex max-h-[90vh] w-full max-w-sm flex-col gap-4 overflow-y-auto rounded-2xl border border-purple-300 bg-white p-8 shadow-xl dark:border-purple-700 dark:bg-gray-900"
-        onClick={(event) => event.stopPropagation()}
+    <Modal onClose={onClose} className="mx-4 w-full max-w-sm">
+      <form
+        onSubmit={handleSignUp}
+        className="flex max-h-[90vh] w-full flex-col gap-4 overflow-y-auto rounded-lg border border-purple-200 bg-white p-8 shadow-xl dark:border-purple-800 dark:bg-gray-900"
       >
         <h2 className="text-center text-xl font-semibold text-purple-700 dark:text-purple-400">Mentee Sign Up</h2>
 
-        <div className="flex gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <input
             type="text"
             placeholder="First Name"
             value={firstName}
             onChange={(event) => setFirstName(event.target.value)}
-            className="w-1/2 rounded-lg border border-purple-300 bg-white px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:border-purple-700 dark:bg-gray-800 dark:text-gray-100"
+            className={inputClass}
+            autoComplete="given-name"
           />
           <input
             type="text"
             placeholder="Last Name"
             value={lastName}
             onChange={(event) => setLastName(event.target.value)}
-            className="w-1/2 rounded-lg border border-purple-300 bg-white px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:border-purple-700 dark:bg-gray-800 dark:text-gray-100"
+            className={inputClass}
+            autoComplete="family-name"
           />
         </div>
 
@@ -107,6 +111,7 @@ export default function MenteeSignUpCard({ role, onClose, onBackToLogin }: Mente
           value={username}
           onChange={(event) => setUsername(event.target.value)}
           className={inputClass}
+          autoComplete="username"
         />
 
         <input
@@ -115,6 +120,7 @@ export default function MenteeSignUpCard({ role, onClose, onBackToLogin }: Mente
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           className={inputClass}
+          autoComplete="email"
         />
 
         <div className="relative">
@@ -124,6 +130,7 @@ export default function MenteeSignUpCard({ role, onClose, onBackToLogin }: Mente
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             className={`${inputClass} pr-10`}
+            autoComplete="new-password"
           />
           <button
             type="button"
@@ -142,6 +149,7 @@ export default function MenteeSignUpCard({ role, onClose, onBackToLogin }: Mente
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
             className={`${inputClass} pr-10`}
+            autoComplete="new-password"
           />
           <button
             type="button"
@@ -161,17 +169,17 @@ export default function MenteeSignUpCard({ role, onClose, onBackToLogin }: Mente
         ) : null}
 
         <button
-          onClick={handleSignUp}
+          type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-purple-600 py-2 font-semibold text-white hover:bg-purple-700 disabled:opacity-50"
+          className="w-full rounded-lg bg-purple-600 py-2 font-semibold text-white transition hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-gray-900"
         >
           {loading ? "Signing up..." : "Sign Up"}
         </button>
 
-        <button onClick={onBackToLogin} className="text-center text-sm text-purple-600 hover:underline dark:text-purple-400">
+        <button type="button" onClick={onBackToLogin} className="text-center text-sm text-purple-600 hover:underline dark:text-purple-400">
           Already have an account? Log In
         </button>
-      </div>
-    </div>
+      </form>
+    </Modal>
   );
 }

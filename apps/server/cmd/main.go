@@ -1,7 +1,6 @@
 package main
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/coderz-space/coderz.space/internal/common/logger"
@@ -12,7 +11,6 @@ import (
 	"github.com/coderz-space/coderz.space/internal/routes"
 	_ "github.com/coderz-space/coderz.space/swagger" // Import generated docs
 	"github.com/labstack/echo/v5"
-	echoMiddleware "github.com/labstack/echo/v5/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"go.uber.org/zap"
 )
@@ -64,13 +62,7 @@ func main() {
 	e := echo.New()
 
 	// middleware
-	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
-		AllowOrigins:     []string{cfg.FrontendOrigin},
-		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length", "Content-Type", "X-Request-Id"},
-		AllowCredentials: true,
-	}))
+	e.Use(corsMiddleware(cfg.FrontendOrigin))
 	e.Use(middleware.ZapLogger())
 	e.Use(middleware.Recovery())
 	e.Use(timeout.TimeoutMiddleware(30 * time.Second)) // 30 second timeout to prevent resource exhaustion

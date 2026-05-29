@@ -29,9 +29,10 @@ export default function ThemeToggle() {
 
   return (
     <button
+      type="button"
       onClick={toggle}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      className="fixed right-4 top-4 z-50 rounded-full border border-purple-400 bg-white p-2 text-purple-700 shadow-md transition-colors hover:bg-purple-100 dark:border-purple-600 dark:bg-gray-900 dark:text-purple-300 dark:hover:bg-gray-800"
+      className="fixed right-4 top-4 z-40 rounded-full border border-purple-300 bg-white p-2 text-purple-700 shadow-md transition-colors hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:border-purple-700 dark:bg-gray-900 dark:text-purple-300 dark:hover:bg-gray-800 dark:focus:ring-offset-gray-950"
     >
       {isDark ? (
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

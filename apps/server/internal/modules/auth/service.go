@@ -6,21 +6,25 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
+	"github.com/coderz-space/coderz.space/internal/common/email"
 	"github.com/coderz-space/coderz.space/internal/common/logger"
 	"github.com/coderz-space/coderz.space/internal/common/utils"
-	"github.com/coderz-space/coderz.space/internal/common/email"
 	"github.com/coderz-space/coderz.space/internal/config"
 	db "github.com/coderz-space/coderz.space/internal/db/sqlc"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
 
+const errEmailAlreadyExists = "EMAIL_ALREADY_EXISTS"
+
 type Service struct {
-	queries *db.Queries
-	config  *config.Config
+	queries      *db.Queries
+	config       *config.Config
 	emailService email.Service
 }
 
@@ -46,10 +50,25 @@ func (s *Service) Signup(ctx context.Context, req SignupRequest) (*AuthResponseD
 		Role:         db.UserRoleUser,
 	})
 	if err != nil {
-		return nil, err
+		return nil, normalizeSignupError(err)
 	}
 
 	return s.generateAuthData(ctx, &user)
+}
+
+func normalizeSignupError(err error) error {
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) && pgErr.Code == "23505" && pgErr.ConstraintName == "users_email_key" {
+		return errors.New(errEmailAlreadyExists)
+	}
+
+	errMsg := err.Error()
+	if strings.Contains(errMsg, "users_email_key") ||
+		strings.Contains(errMsg, "duplicate key value violates unique constraint") {
+		return errors.New(errEmailAlreadyExists)
+	}
+
+	return err
 }
 
 func (s *Service) Login(ctx context.Context, req LoginRequest) (*AuthResponseData, error) {

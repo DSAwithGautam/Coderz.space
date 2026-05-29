@@ -21,7 +21,9 @@ export default function Modal({ onClose, children, className = "" }: ModalProps)
 
   return (
     <div
-      className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
       onMouseDown={(e) => {
         if (innerRef.current && !innerRef.current.contains(e.target as Node)) {
           onClose();
