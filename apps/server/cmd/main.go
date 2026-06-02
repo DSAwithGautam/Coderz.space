@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/coderz-space/coderz.space/internal/common/logger"
-	"github.com/coderz-space/coderz.space/internal/common/middleware"
+	appMiddleware "github.com/coderz-space/coderz.space/internal/common/middleware"
 	"github.com/coderz-space/coderz.space/internal/common/middleware/timeout"
 	config "github.com/coderz-space/coderz.space/internal/config"
 	"github.com/coderz-space/coderz.space/internal/container"
@@ -46,7 +46,6 @@ import (
 // @tag.name Bootcamp Enrollments
 // @tag.description Bootcamp enrollment management endpoints
 func main() {
-
 	cfg := config.LoadConfig()
 	logger.Initialize(cfg)
 	defer func() {
@@ -63,8 +62,8 @@ func main() {
 
 	// middleware
 	e.Use(corsMiddleware(cfg.FrontendOrigin))
-	e.Use(middleware.ZapLogger())
-	e.Use(middleware.Recovery())
+	e.Use(appMiddleware.ZapLogger())
+	e.Use(appMiddleware.Recovery())
 	e.Use(timeout.TimeoutMiddleware(30 * time.Second)) // 30 second timeout to prevent resource exhaustion
 
 	// swagger docs
