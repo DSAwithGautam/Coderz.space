@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/coderz-space/coderz.space/internal/common/logger"
@@ -46,6 +47,32 @@ import (
 
 // @tag.name Bootcamp Enrollments
 // @tag.description Bootcamp enrollment management endpoints
+func corsConfig(frontendOrigin string) echoMiddleware.CORSConfig {
+	return echoMiddleware.CORSConfig{
+		AllowOrigins: []string{frontendOrigin},
+		AllowMethods: []string{
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodPatch,
+			http.MethodDelete,
+		},
+		AllowHeaders: []string{
+			"Origin",
+			"Content-Type",
+			"Accept",
+			"Authorization",
+			"X-Requested-With",
+		},
+		ExposeHeaders:    []string{"Content-Length", "Content-Type", "X-Request-Id"},
+		AllowCredentials: true,
+	}
+}
+
+func corsMiddleware(frontendOrigin string) echo.MiddlewareFunc {
+	return echoMiddleware.CORSWithConfig(corsConfig(frontendOrigin))
+}
+
 func main() {
 	cfg := config.LoadConfig()
 	logger.Initialize(cfg)
@@ -62,7 +89,7 @@ func main() {
 	e := echo.New()
 
 	// middleware
-	e.Use(echoMiddleware.CORSWithConfig(corsConfig(cfg.FrontendOrigin)))
+	e.Use(corsMiddleware(cfg.FrontendOrigin))
 	e.Use(appMiddleware.ZapLogger())
 	e.Use(appMiddleware.Recovery())
 	e.Use(timeout.TimeoutMiddleware(30 * time.Second)) // 30 second timeout to prevent resource exhaustion
