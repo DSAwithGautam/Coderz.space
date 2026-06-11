@@ -114,3 +114,4 @@ docker-data/
 .obsidian
 .excalidraw
 .gocache
+apps/web/.jest-cache/
