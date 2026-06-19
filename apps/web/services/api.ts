@@ -114,15 +114,15 @@ export async function request<T>(config: AxiosRequestConfig): Promise<T> {
 export const api = {
   get: <T>(url: string, config?: AxiosRequestConfig) =>
     request<T>({ ...config, method: "GET", url }),
-  post: <T, B extends object | undefined = undefined>(url: string, data?: B, config?: AxiosRequestConfig) =>
+  post: <T, B extends object = object>(url: string, data?: B, config?: AxiosRequestConfig) =>
     request<T>({ ...config, method: "POST", url, data }),
-  put: <T, B extends object | undefined = undefined>(url: string, data?: B, config?: AxiosRequestConfig) =>
+  put: <T, B extends object = object>(url: string, data?: B, config?: AxiosRequestConfig) =>
     request<T>({ ...config, method: "PUT", url, data }),
-  patch: <T, B extends object | undefined = undefined>(url: string, data?: B, config?: AxiosRequestConfig) =>
+  patch: <T, B extends object = object>(url: string, data?: B, config?: AxiosRequestConfig) =>
     request<T>({ ...config, method: "PATCH", url, data }),
   delete: <T>(url: string, config?: AxiosRequestConfig) =>
     request<T>({ ...config, method: "DELETE", url }),
-  rawPost: <T, B extends object | undefined = undefined>(url: string, data?: B, config?: AxiosRequestConfig) =>
+  rawPost: <T, B extends object = object>(url: string, data?: B, config?: AxiosRequestConfig) =>
     requestRaw<T>({ ...config, method: "POST", url, data }),
   rawGet: <T>(url: string, config?: AxiosRequestConfig) =>
     requestRaw<T>({ ...config, method: "GET", url }),

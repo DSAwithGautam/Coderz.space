@@ -108,8 +108,8 @@ func TestHandler_Signup(t *testing.T) {
 			checkResponse: func(t *testing.T, rec *httptest.ResponseRecorder) {
 				var resp map[string]interface{}
 				json.Unmarshal(rec.Body.Bytes(), &resp)
-				if resp["message"] != "duplicate key value violates unique constraint" {
-					t.Errorf("Expected database error message, got %v", resp["message"])
+				if resp["message"] != "EMAIL_ALREADY_EXISTS" {
+					t.Errorf("Expected EMAIL_ALREADY_EXISTS, got %v", resp["message"])
 				}
 			},
 		},

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/coderz-space/coderz.space/internal/common/logger"
-	"github.com/coderz-space/coderz.space/internal/common/middleware"
+	appMiddleware "github.com/coderz-space/coderz.space/internal/common/middleware"
 	"github.com/coderz-space/coderz.space/internal/common/middleware/timeout"
 	config "github.com/coderz-space/coderz.space/internal/config"
 	"github.com/coderz-space/coderz.space/internal/container"
@@ -47,8 +47,33 @@ import (
 
 // @tag.name Bootcamp Enrollments
 // @tag.description Bootcamp enrollment management endpoints
-func main() {
+func corsConfig(frontendOrigin string) echoMiddleware.CORSConfig {
+	return echoMiddleware.CORSConfig{
+		AllowOrigins: []string{frontendOrigin},
+		AllowMethods: []string{
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodPatch,
+			http.MethodDelete,
+		},
+		AllowHeaders: []string{
+			"Origin",
+			"Content-Type",
+			"Accept",
+			"Authorization",
+			"X-Requested-With",
+		},
+		ExposeHeaders:    []string{"Content-Length", "Content-Type", "X-Request-Id"},
+		AllowCredentials: true,
+	}
+}
 
+func corsMiddleware(frontendOrigin string) echo.MiddlewareFunc {
+	return echoMiddleware.CORSWithConfig(corsConfig(frontendOrigin))
+}
+
+func main() {
 	cfg := config.LoadConfig()
 	logger.Initialize(cfg)
 	defer func() {
@@ -64,15 +89,9 @@ func main() {
 	e := echo.New()
 
 	// middleware
-	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
-		AllowOrigins:     []string{cfg.FrontendOrigin},
-		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length", "Content-Type", "X-Request-Id"},
-		AllowCredentials: true,
-	}))
-	e.Use(middleware.ZapLogger())
-	e.Use(middleware.Recovery())
+	e.Use(corsMiddleware(cfg.FrontendOrigin))
+	e.Use(appMiddleware.ZapLogger())
+	e.Use(appMiddleware.Recovery())
 	e.Use(timeout.TimeoutMiddleware(30 * time.Second)) // 30 second timeout to prevent resource exhaustion
 
 	// swagger docs
